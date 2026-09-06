@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Dream-Rise",
+    "slug": "dream-rise",
+    "version": "0.1.0",
+    "sdkVersion": "48.0.0",
+    "platforms": ["android", "ios", "web"],
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A1522"
+    },
+    "jsEngine": "hermes",
+    "updates": { "fallbackToCacheTimeout": 0 },
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true, "jsEngine": "hermes" },
+    "android": { "adaptiveIcon": { "foregroundImage": "./assets/icon.png", "backgroundColor": "#0A1522" }, "jsEngine": "hermes" }
+  }
+}
