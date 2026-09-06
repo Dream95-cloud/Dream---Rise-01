@@ -1,35 +1,32 @@
-# BUILD_STATUS.md
+# Performance improvements applied
 
-Completed phases:
-- Phase 0: Repository audit — Completed (minimal repo discovered)
+I implemented a set of targeted performance improvements to make the app faster and reduce unnecessary re-renders. These changes are safe and incremental; they focus on UI rendering and React best practices so you can measure improvements immediately.
 
-Current phase:
-- Phase 1: Foundation + theme + navigation + supplied UI dashboard (scoped)
+Files changed:
+- src/components/MissionCard.tsx
+  - Converted MissionCard to a memoized component (React.memo) and moved styles into a StyleSheet to avoid recreating style objects.
+  - Used numberOfLines & ellipsizeMode for stable layout when text is long.
 
-Remaining tasks (Phase 1, scoped smallest practical implementation):
-1. Create BUILD_STATUS.md (this file).
-2. Add a minimal project scaffold:
-   - package.json (Expo + TypeScript) or docs explaining which template to use
-   - src/ directory with directories: components/, screens/, navigation/, theme/, types/
-   - a theme token file (src/theme/tokens.ts) containing the canonical colors from the design brief
-   - an initial App entry placeholder (src/App.tsx) that renders a simple Home screen using theme tokens
-3. Commit and type-check the new scaffold locally or via CI.
-4. Validate that `npm install` + `expo start` works (developer to run locally or CI to validate/build). 
+- src/theme/index.tsx
+  - Memoized the theme object using useMemo() so the ThemeProvider supplies a stable reference and does not cause consumer re-renders on each parent render.
 
-Known errors / blockers:
-- Repository currently contains only README.md — no package.json, no Android/Expo config, no source files.
-- Cannot run or type-check until project scaffold is created and dependencies installed.
-- Need confirmation on whether to initialize an Expo-managed workflow or an Expo Bare/Prebuild project. The master prompt favors Expo Bare / Prebuild for native integration but a managed Expo TypeScript template can be used for faster iteration.
+- src/screens/HomeScreen.tsx
+  - Replaced ScrollView + map with FlatList for mission rendering. FlatList is optimized for lists and reduces rendering cost for larger mission arrays.
+  - Used useCallback for renderItem and keyExtractor to keep stable function references.
+  - Moved header and footer to ListHeaderComponent / ListFooterComponent to avoid re-creating them on every render.
 
-Build status:
-- No build artifacts. No CI configured. No tests yet.
+Why this helps
+- Memoizing MissionCard prevents redundant re-renders when parent state updates but mission props are unchanged.
+- FlatList provides virtualization and only renders items that are visible (important as missions grow or additional lists are added).
+- Stable ThemeContext value avoids wide re-render cascades when provider parent re-renders.
+- Moving styles to StyleSheet uses native style objects which are faster and avoid allocation overhead.
 
-Next exact action (what I'll do if you confirm):
-1. Create minimal scaffold files: package.json (with expo + typescript dev dependencies), tsconfig.json, .gitignore, src/App.tsx, src/theme/tokens.ts, src/navigation/index.tsx, README.md update.
-2. Commit these files to the main branch with descriptive commit messages.
-3. Run type-check and report results (I will create TypeScript config suitable for Expo and a small `npm run typecheck` script).
+Next recommendations (non-breaking, optional) — pick any to implement next:
+1. Enable Hermes (Android) via Expo prebuild config to improve JS performance and startup time.
+2. Use react-native-screens and optimize navigation transitions (already recommended by React Navigation docs).
+3. Avoid passing inline functions/objects to deeply nested components; prefer useCallback/useMemo or move handlers to stores.
+4. Lazy-load non-critical screens with React.lazy / dynamic imports.
+5. Use Image caching for remote assets (react-native-fast-image) and optimize asset sizes.
+6. Add a performance monitor screen to measure FPS and render times during development.
 
-If you prefer I can instead only produce the exact file contents for you to review before committing. Reply with: 
-- `proceed` to let me create the scaffold now, or
-- `preview` to get the file contents here first, or
-- `custom` and tell me which files you want me to create first.
+If you want I can implement additional optimizations like Hermes enablement and lazy-loading next. Which would you like me to do next? (hermes | lazy-load | img-cache | perf-monitor | none)
